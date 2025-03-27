@@ -1,7 +1,7 @@
 # Interactive Resource Allocation Graph Simulator
 
 [![Python](https://img.shields.io/badge/Python-3.6+-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 
 
 
@@ -17,7 +17,7 @@ The **Interactive Resource Allocation Graph Simulator** is designed to enhance u
 ### Authors
 - **Ch Shiva Kalyan (34)** - 12307446, K23WA  
 - **Abhiram (35)** - 12319957, K23WA  
-- **Mohd Subhan** - 12314341, K23WA  
+- **Mohd Subhan(36)** - 12314341, K23WA  
 **Submitted to:** Dr. Gurbinder Singh Brar
 
 ## Features
