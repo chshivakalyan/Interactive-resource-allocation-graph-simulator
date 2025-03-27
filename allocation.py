@@ -12,24 +12,30 @@ class ResourceManager:
         self.allocation_graph.add_node(process)
         self.allocation_graph.add_node(resource)
 
-        holders = [p for p, r in self.allocation_graph.edges() if r == resource]
+        # Check if resource is already allocated
+        holders = [p for r, p in self.allocation_graph.edges() if r == resource]
         if holders and holders[0] != process:
-            if not self.allocation_graph.has_edge(resource, process):
-                self.allocation_graph.add_edge(resource, process, type='request')
+            if not self.allocation_graph.has_edge(process, resource):
+                # Corrected: Request edge is Process -> Resource
+                self.allocation_graph.add_edge(process, resource, type='request')
             return f"{process} requested {resource} (held by {holders[0]})"
 
-        if self.allocation_graph.has_edge(resource, process):
-            self.allocation_graph.remove_edge(resource, process)
+        if self.allocation_graph.has_edge(process, resource):
+            self.allocation_graph.remove_edge(process, resource)
 
-        self.allocation_graph.add_edge(process, resource, type='allocation')
+        # Corrected: Allocation edge is Resource -> Process
+        self.allocation_graph.add_edge(resource, process, type='allocation')
         return f"Allocated {resource} to {process}"
 
     def release(self, process, resource):
-        if self.allocation_graph.has_edge(process, resource):
-            self.allocation_graph.remove_edge(process, resource)
-            for p in list(self.allocation_graph.successors(resource)):
-                self.allocation_graph.remove_edge(resource, p)
-                self.allocate(p, resource)
+        # Check allocation edge (Resource -> Process)
+        if self.allocation_graph.has_edge(resource, process):
+            self.allocation_graph.remove_edge(resource, process)
+            # Remove request edges and attempt allocation for waiting processes
+            for p in list(self.allocation_graph.predecessors(resource)):
+                if self.allocation_graph.has_edge(p, resource):
+                    self.allocation_graph.remove_edge(p, resource)
+                    self.allocate(p, resource)  # Attempt to allocate to waiting process
             if self.allocation_graph.degree(process) == 0:
                 self.allocation_graph.remove_node(process)
             if self.allocation_graph.degree(resource) == 0:
@@ -61,8 +67,9 @@ class ResourceManager:
                 if has_allocation and has_request:
                     deadlock_cycles.append(cycle_edges)
 
+            # Modified: Report all deadlock cycles
             if deadlock_cycles:
-                return True, f"Deadlock Detected! Cycle: {repr(deadlock_cycles[0])}"
+                return True, f"Deadlock Detected! Cycles: {repr(deadlock_cycles)}"
             return False, "No Deadlock Detected"
         except Exception as e:
             return False, f"Error in deadlock detection: {str(e)}"
